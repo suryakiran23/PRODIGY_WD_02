@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-image: url('images/background.jpg'); /* Use your local image file */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .stopwatch {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .time {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .buttons button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            outline: none;
+            background-color: #ffffff;
+        }
+        .buttons button:hover {
+            background-color: #ddd;
+        }
+        .laps {
+            margin-top: 20px;
+        }
+        .lap {
+            font-size: 14px;
+            border-top: 1px solid #ddd;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="stopwatch">
+        <div class="time" id="display">00:00:00.000</div>
+        <div class="buttons">
+            <button onclick="startStop()">Start</button>
+            <button onclick="reset()">Reset</button>
+            <button onclick="recordLap()">Lap</button>
+        </div>
+        <div class="laps" id="laps"></div>
+    </div>
+    <script>
+        let startTime, updatedTime, difference, tInterval;
+        let running = false;
+        const display = document.getElementById('display');
+        const laps = document.getElementById('laps');
+
+        function startStop() {
+            if (!running) {
+                startTime = new Date().getTime() - (difference || 0);
+                tInterval = setInterval(getShowTime, 10); // Update every 10 milliseconds
+                running = true;
+                document.querySelector(".buttons button:nth-child(1)").textContent = "Pause";
+            } else {
+                clearInterval(tInterval);
+                running = false;
+                document.querySelector(".buttons button:nth-child(1)").textContent = "Start";
+            }
+        }
+
+        function reset() {
+            clearInterval(tInterval);
+            running = false;
+            difference = 0;
+            display.textContent = "00:00:00.000";
+            laps.innerHTML = '';
+            document.querySelector(".buttons button:nth-child(1)").textContent = "Start";
+        }
+
+        function getShowTime() {
+            updatedTime = new Date().getTime();
+            difference = updatedTime - startTime;
+            let hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            let milliseconds = Math.floor((difference % 1000) / 10); // Get milliseconds and truncate to 2 decimal places
+            hours = (hours < 10) ? "0" + hours : hours;
+            minutes = (minutes < 10) ? "0" + minutes : minutes;
+            seconds = (seconds < 10) ? "0" + seconds : seconds;
+            milliseconds = (milliseconds < 10) ? "0" + milliseconds : milliseconds;
+            milliseconds = (milliseconds < 100) ? "0" + milliseconds : milliseconds; // Ensure three digits
+            display.textContent = hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+        }
+
+        function recordLap() {
+            if (running) {
+                const lapTime = document.createElement('div');
+                lapTime.className = 'lap';
+                lapTime.textContent = display.textContent;
+                laps.appendChild(lapTime);
+            }
+        }
+    </script>
+</body>
+</html>
